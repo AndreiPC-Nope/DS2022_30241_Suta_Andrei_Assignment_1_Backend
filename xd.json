@@ -1,0 +1,16 @@
+{
+  "users": {
+      "user0": {
+        "name": "John",
+        "role": 1
+      },
+      "user1": {
+        "name": "Mary",
+        "role": 2
+      },
+      "user2": {
+        "name": "Alex",
+        "role": 2
+      }
+  }
+}
