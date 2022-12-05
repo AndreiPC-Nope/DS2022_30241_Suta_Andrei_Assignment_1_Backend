@@ -6,6 +6,7 @@ from flask import Flask, json, jsonify, request
 from flask_cors import cross_origin, CORS
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy_utils import create_database, database_exists
 from models import Role, User, Device, Measurement
 from requests import *
 
@@ -14,12 +15,15 @@ from models import Base
 
 que = 'coada_vietii'
 
-DATABASE_URI = "postgresql://postgres:root@localhost:5432/utilitiesDB"
+DATABASE_URI = "postgresql://postgres:password@database:5432/utilitiesDB"
 app = Flask(__name__)
 CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.secret_key = '16827398671235867591423'
 engine = create_engine(DATABASE_URI, echo=False)
+
+if not database_exists(engine.url):
+	create_database(engine.url)
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -40,8 +44,9 @@ def thread_iepure():
     channel.start_consuming()
 
 
+
 # Base.metadata.drop_all(engine)
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 
 ########################################################################################################
