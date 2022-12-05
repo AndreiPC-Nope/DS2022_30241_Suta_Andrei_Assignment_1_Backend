@@ -1,10 +1,18 @@
+from threading import Thread
+import time
+import pika
+
 from flask import Flask, json, jsonify, request
 from flask_cors import cross_origin, CORS
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from models import Role, User, Device, Measurement
 from requests import *
+
+
 from models import Base
+
+que = 'coada_vietii'
 
 DATABASE_URI = "postgresql://postgres:root@localhost:5432/utilitiesDB"
 app = Flask(__name__)
@@ -15,6 +23,21 @@ engine = create_engine(DATABASE_URI, echo=False)
 
 Session = sessionmaker(bind=engine)
 session = Session()
+
+url = 'amqps://ynwbwptb:jv1dmvdqmuEFSABp9fSoZYOAsM5ha69j@goose.rmq2.cloudamqp.com:5671/ynwbwptb'
+
+
+def thread_iepure():
+    print('HERE')
+    def callback(ch, method, properties, body):
+        print('Received: ' + str(body))
+
+    connection = pika.BlockingConnection(pika.connection.URLParameters(url))
+    channel = connection.channel()
+    channel.queue_declare(queue=que)
+
+    channel.basic_consume(queue=que, on_message_callback=callback, auto_ack=True)
+    channel.start_consuming()
 
 
 # Base.metadata.drop_all(engine)
@@ -360,5 +383,11 @@ def get_book_details():
     return "Author : {}, Published: {}".json(author, published)
 
 
+th = Thread(target=thread_iepure)
+th.start()
+
 if __name__ == '__main__':
     app.run()
+
+
+
